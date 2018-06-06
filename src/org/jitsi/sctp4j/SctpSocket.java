@@ -636,6 +636,36 @@ public class SctpSocket
         return r;
     }
 
+    public int send(
+            byte[] data, int offset, int len,
+            boolean ordered,
+            int sid, int ppid, int reliab)
+            throws IOException
+    {
+        if(data == null)
+        {
+            throw new NullPointerException("data");
+        }
+        if(offset < 0 || len <= 0 || offset + len > data.length)
+        {
+            throw new IllegalArgumentException(
+                    "o: " + offset + " l: " + len + " data l: " + data.length);
+        }
+
+        long ptr = lockPtr();
+        int r;
+
+        try
+        {
+            r = Sctp.usrsctp_send(ptr, data, offset, len, ordered, sid, ppid, reliab);
+        }
+        finally
+        {
+            unlockPtr();
+        }
+        return r;
+    }
+
     /**
      * Sets the callback that will be fired when new data is received.
      *
