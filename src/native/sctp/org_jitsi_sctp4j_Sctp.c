@@ -233,12 +233,15 @@ Java_org_jitsi_sctp4j_Sctp_usrsctp_1listen
  * Signature: (J[BIIZII)I
  */
 JNIEXPORT jint JNICALL
-Java_org_jitsi_sctp4j_Sctp_usrsctp_1send
+  Java_org_jitsi_sctp4j_Sctp_usrsctp_1send__J_3BIIZII
     (JNIEnv *env, jclass clazz, jlong ptr, jbyteArray data, jint off, jint len,
         jboolean ordered, jint sid, jint ppid)
 {
     jbyte *data_;
     ssize_t r;  /* returned by usrsctp_sendv */
+
+    debugSctpPrintf("=====>: Java_org_jitsi_sctp4j_Sctp_usrsctp_1send called!\n");
+
 
     data_ = (*env)->GetByteArrayElements(env, data, NULL);
     if (data_)
@@ -276,6 +279,115 @@ Java_org_jitsi_sctp4j_Sctp_usrsctp_1send
     if (r < 0)
         perror("Sctp send error: ");
     return (jint) r;
+}
+
+/*
+ * Class:     org_jitsi_sctp4j_Sctp
+ * Method:    usrsctp_send
+ * Signature: (J[BIIZIII)I
+ */
+JNIEXPORT jint JNICALL
+  Java_org_jitsi_sctp4j_Sctp_usrsctp_1send__J_3BIIZIII
+  (JNIEnv *env, jclass clazz, jlong ptr, jbyteArray data, jint off, jint len,
+jboolean ordered, jint sid, jint ppid, jint reliab)
+{
+    jbyte *data_;
+    debugSctpPrintf("=====>: overloaded Java_org_jitsi_sctp4j_Sctp_usrsctp_1send called!\n");
+
+    ssize_t r;  /* returned by usrsctp_sendv */
+
+    data_ = (*env)->GetByteArrayElements(env, data, NULL);
+    if (data_) {
+        SctpSocket *sctpSocket;
+        struct sctp_sndinfo sndinfo;
+
+        sctpSocket = (SctpSocket *) (intptr_t) ptr;
+
+        // Code for sending SPA
+        struct sctp_sendv_spa spa = {0};
+        spa.sendv_sndinfo.snd_sid = sid;
+        spa.sendv_sndinfo.snd_flags = 0;
+        spa.sendv_sndinfo.snd_ppid = htonl(ppid);
+        spa.sendv_prinfo.pr_policy = SCTP_PR_SCTP_RTX;
+        spa.sendv_prinfo.pr_value = reliab;
+        spa.sendv_flags = SCTP_SEND_SNDINFO_VALID;
+
+
+        sndinfo.snd_assoc_id = 0;
+        sndinfo.snd_context = 0;
+        sndinfo.snd_flags = 0;
+          if (JNI_FALSE == ordered) {
+            sndinfo.snd_flags |= SCTP_UNORDERED;
+            spa.sendv_sndinfo.snd_flags |= SCTP_UNORDERED;
+        }
+        spa.sendv_flags |= SCTP_SEND_PRINFO_VALID;
+        sndinfo.snd_ppid = htonl(ppid);
+        sndinfo.snd_sid = sid;
+
+        r = usrsctp_sendv(sctpSocket->so, data_ + off, len, NULL, 0, &spa, sizeof(spa), SCTP_SENDV_SPA, 0);
+        debugSctpPrintf("=====>: done calling overloaded Java_org_jitsi_sctp4j_Sctp_usrsctp_1send called!\n");
+//r
+        //= usrsctp_sendv(
+        //  sctpSocket->so,
+        //  data_ + off,
+        //  len,
+        //  /* to */ NULL,
+        //  /* addrcnt */ 0,
+        //  &sndinfo,
+        //  (socklen_t) sizeof(sndinfo),
+        //SCTP_SENDV_SNDINFO,
+        ///* flags */ 0);
+        (*env)->ReleaseByteArrayElements(env, data, data_, JNI_ABORT);
+    }
+    else
+    {
+        r = -1;
+    }
+    if (r < 0)
+        perror("Sctp send error: ");
+    return (jint) r;
+//jbyte *data_;
+//ssize_t r;  /* returned by usrsctp_sendv */
+//
+//debugSctpPrintf("=====>: overloaded Java_org_jitsi_sctp4j_Sctp_usrsctp_1send called!\n");
+//
+//
+//data_ = (*env)->GetByteArrayElements(env, data, NULL);
+//if (data_)
+//{
+//SctpSocket *sctpSocket;
+//struct sctp_sndinfo sndinfo;
+//
+//sctpSocket = (SctpSocket *) (intptr_t) ptr;
+//
+//sndinfo.snd_assoc_id = 0;
+//sndinfo.snd_context = 0;
+//sndinfo.snd_flags = 0;
+//if (JNI_FALSE == ordered)
+//sndinfo.snd_flags |= SCTP_UNORDERED;
+//sndinfo.snd_ppid = htonl(ppid);
+//sndinfo.snd_sid = sid;
+//
+//r
+//= usrsctp_sendv(
+//  sctpSocket->so,
+//  data_ + off,
+//  len,
+//  /* to */ NULL,
+//  /* addrcnt */ 0,
+//  &sndinfo,
+//  (socklen_t) sizeof(sndinfo),
+//SCTP_SENDV_SNDINFO,
+///* flags */ 0);
+//(*env)->ReleaseByteArrayElements(env, data, data_, JNI_ABORT);
+//}
+//else
+//{
+//r = -1;
+//}
+//if (r < 0)
+//perror("Sctp send error: ");
+//return (jint) r;
 }
 
 /*

@@ -70,8 +70,16 @@ JNIEXPORT void JNICALL Java_org_jitsi_sctp4j_Sctp_usrsctp_1listen
  * Method:    usrsctp_send
  * Signature: (J[BIIZII)I
  */
-JNIEXPORT jint JNICALL Java_org_jitsi_sctp4j_Sctp_usrsctp_1send
+JNIEXPORT jint JNICALL Java_org_jitsi_sctp4j_Sctp_usrsctp_1send__J_3BIIZII
   (JNIEnv *, jclass, jlong, jbyteArray, jint, jint, jboolean, jint, jint);
+
+/*
+ * Class:     org_jitsi_sctp4j_Sctp
+ * Method:    usrsctp_send
+ * Signature: (J[BIIZIII)I
+ */
+JNIEXPORT jint JNICALL Java_org_jitsi_sctp4j_Sctp_usrsctp_1send__J_3BIIZIII
+  (JNIEnv *, jclass, jlong, jbyteArray, jint, jint, jboolean, jint, jint, jint);
 
 /*
  * Class:     org_jitsi_sctp4j_Sctp
