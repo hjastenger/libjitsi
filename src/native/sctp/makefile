@@ -24,7 +24,7 @@ CFLAGS = -Wall -Werror -std=c99 $(JNI_HEADERS) $(SCTP_HEADERS) -DSCTP_DEBUG=1 -D
 
 OBJS = org_jitsi_sctp4j_Sctp.c
 
-LIBS = -L"usrsctp/.libs" -lusrsctp -lpthread
+LIBS = -L"usrsctp/usrsctplib/.libs" -lusrsctp -lpthread
 
 libjnsctp.so: clean
 	$(CC) $(CFLAGS) -fPIC -shared $(OBJS) -o libjnsctp.so $(LIBS)
