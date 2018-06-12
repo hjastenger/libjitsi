@@ -333,6 +333,7 @@ public class Sctp
      * @param ordered should we care about message order ?
      * @param sid SCTP stream identifier
      * @param ppid payload protocol identifier
+     * @param reliab reliability configuration
      * @return sent bytes count or <tt>-1</tt> in case of an error.
      */
     static native int usrsctp_send(
@@ -342,6 +343,30 @@ public class Sctp
             int sid,
             int ppid,
             int reliab);
+
+    /**
+     * Sends given <tt>data</tt> on selected SCTP stream using given payload
+     * protocol identifier.
+     * FIXME add offset and length buffer parameters.
+     * @param ptr native socket pointer.
+     * @param data the data to send.
+     * @param off the position of the data inside the buffer
+     * @param len data length.
+     * @param ordered should we care about message order ?
+     * @param sid SCTP stream identifier
+     * @param ppid payload protocol identifier
+     * @param reliab reliability configuration
+     * @param channel_type specifies the kind of channel that is being used
+     * @return sent bytes count or <tt>-1</tt> in case of an error.
+     */
+    static native int usrsctp_send(
+            long ptr,
+            byte[] data, int off, int len,
+            boolean ordered,
+            int sid,
+            int ppid,
+            int reliab,
+            int channel_type);
 
     /**
      * Creates native SCTP socket and returns pointer to it.
