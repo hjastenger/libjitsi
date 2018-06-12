@@ -83,6 +83,14 @@ JNIEXPORT jint JNICALL Java_org_jitsi_sctp4j_Sctp_usrsctp_1send__J_3BIIZIII
 
 /*
  * Class:     org_jitsi_sctp4j_Sctp
+ * Method:    usrsctp_send
+ * Signature: (J[BIIZIIII)I
+ */
+JNIEXPORT jint JNICALL Java_org_jitsi_sctp4j_Sctp_usrsctp_1send__J_3BIIZIIII
+  (JNIEnv *, jclass, jlong, jbyteArray, jint, jint, jboolean, jint, jint, jint, jint);
+
+/*
+ * Class:     org_jitsi_sctp4j_Sctp
  * Method:    usrsctp_socket
  * Signature: (I)J
  */

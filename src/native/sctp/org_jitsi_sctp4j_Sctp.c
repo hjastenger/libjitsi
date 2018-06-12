@@ -392,6 +392,74 @@ jboolean ordered, jint sid, jint ppid, jint reliab)
 
 /*
  * Class:     org_jitsi_sctp4j_Sctp
+ * Method:    usrsctp_send
+ * Signature: (J[BIIZIIII)I
+ */
+JNIEXPORT jint JNICALL
+  Java_org_jitsi_sctp4j_Sctp_usrsctp_1send__J_3BIIZIIII
+  (JNIEnv *env, jclass clazz, jlong ptr, jbyteArray data, jint off, jint len,
+jboolean ordered, jint sid, jint ppid, jint reliab, jint channel_type)
+{
+    jbyte *data_;
+    debugSctpPrintf("=====>: overloaded channelType Java_org_jitsi_sctp4j_Sctp_usrsctp_1send called!\n");
+    unsigned int u_channel_type = channel_type;
+
+    ssize_t r;  /* returned by usrsctp_sendv */
+
+    data_ = (*env)->GetByteArrayElements(env, data, NULL);
+    if (data_) {
+        SctpSocket *sctpSocket;
+//        struct sctp_sndinfo sndinfo;
+
+        sctpSocket = (SctpSocket *) (intptr_t) ptr;
+
+        // Code for sending SPA
+        struct sctp_sendv_spa spa = {0};
+        spa.sendv_sndinfo.snd_sid = sid;
+        spa.sendv_sndinfo.snd_flags = 0;
+        spa.sendv_sndinfo.snd_ppid = htonl(ppid);
+
+        if(u_channel_type == 0x01 || u_channel_type == 0x81) {
+            debugSctpPrintf("=====>: called either with type 0x01 or 0x81!\n");
+            spa.sendv_prinfo.pr_policy = SCTP_PR_SCTP_RTX;
+            spa.sendv_prinfo.pr_value = reliab;
+            spa.sendv_flags = SCTP_SEND_SNDINFO_VALID;
+        } else if(u_channel_type == 0x02 || u_channel_type == 0x82) {
+            debugSctpPrintf("=====>: called either with type 0x02 or 0x82!\n");
+            spa.sendv_prinfo.pr_policy = SCTP_PR_SCTP_TTL;
+            spa.sendv_prinfo.pr_value = reliab;
+            spa.sendv_flags = SCTP_SEND_SNDINFO_VALID;
+        } else {
+            debugSctpPrintf("=====>: called with none matching: '%u' \n", u_channel_type);
+        }
+
+//        sndinfo.snd_assoc_id = 0;
+//        sndinfo.snd_context = 0;
+//        sndinfo.snd_flags = 0;
+          if (JNI_FALSE == ordered) {
+//            sndinfo.snd_flags |= SCTP_UNORDERED;
+            spa.sendv_sndinfo.snd_flags |= SCTP_UNORDERED;
+        }
+        spa.sendv_flags |= SCTP_SEND_PRINFO_VALID;
+//        sndinfo.snd_ppid = htonl(ppid);
+//        sndinfo.snd_sid = sid;
+
+        r = usrsctp_sendv(sctpSocket->so, data_ + off, len, NULL, 0, &spa, sizeof(spa), SCTP_SENDV_SPA, 0);
+        debugSctpPrintf("=====>: done calling overloaded channelType Java_org_jitsi_sctp4j_Sctp_usrsctp_1send called!\n");
+
+        (*env)->ReleaseByteArrayElements(env, data, data_, JNI_ABORT);
+    }
+    else
+    {
+        r = -1;
+    }
+    if (r < 0)
+        perror("Sctp send error: ");
+    return (jint) r;
+}
+
+/*
+ * Class:     org_jitsi_sctp4j_Sctp
  * Method:    usrsctp_socket
  * Signature: (I)J
  */
